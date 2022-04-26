@@ -1,0 +1,34 @@
+{
+    "window.zoomLevel": -1,
+    "files.associations": {
+        "*.js": "javascriptreact"
+    },
+    "editor.formatOnType": true,
+    "editor.formatOnSave": true,
+    "prettier.singleQuote": false,
+    "prettier.trailingComma": "all",
+    "prettier.semi": true,
+    "prettier.printWidth": 100,
+    // "eslint.workingDirectories": [
+    //     { "mode": "auto" }
+    // ],
+    "tabnine.experimentalAutoImports": true,
+    "git.autorefresh": false,
+    "git.confirmEmptyCommits": false,
+    "git.confirmForcePush": false,
+    "git.confirmSync": false,
+    "git.decorations.enabled": false,
+    "git.detectSubmodules": false,
+    "git.enabled": false,
+    "git.enableStatusBarSync": false,
+    "git.openDiffOnClick": false,
+    "git.pullTags": false,
+    "git.showCommitInput": false,
+    "git.showInlineOpenFileAction": false,
+    "git.showProgress": false,
+    "git.suggestSmartCommit": false,
+    // "prettier.requireConfig": true,
+    "git.terminalAuthentication": false,
+    "settingsSync.ignoredExtensions": [],
+    "settingsSync.ignoredSettings": [],
+}
