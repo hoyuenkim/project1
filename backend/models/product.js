@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const Product = sequelize.define(
-    'Product',
+    "Product",
     {
       title: {
         type: DataTypes.STRING,
@@ -26,8 +26,8 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
-      charset: 'utf8',
-      collate: 'utf8_general_ci',
+      charset: "utf8",
+      collate: "utf8_general_ci",
     },
   );
   Product.associate = (db) => {
@@ -39,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     db.Product.hasMany(db.Like);
     db.Product.hasMany(db.Payments);
     db.Product.hasMany(db.Rating);
+    db.Product.hasMany(db.Stock);
   };
   return Product;
 };

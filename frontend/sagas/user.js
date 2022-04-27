@@ -1,12 +1,5 @@
-import {
-  fork,
-  takeEvery,
-  all,
-  put,
-  call,
-  takeLatest,
-} from 'redux-saga/effects';
-import axios from 'axios';
+import { fork, takeEvery, all, put, call, takeLatest } from "redux-saga/effects";
+import axios from "axios";
 import {
   LOAD_USER_SUCCESS,
   LOAD_USER_FAILURE,
@@ -20,10 +13,13 @@ import {
   PASSWORD_CHANGE_REQUEST,
   PASSWORD_CHANGE_SUCCESS,
   PASSWORD_CHANGE_FAILURE,
-} from '../reducers/user';
+  ADD_SHOP_REQUEST,
+  ADD_SHOP_SUCCESS,
+  ADD_SHOP_FAILURE,
+} from "../reducers/user";
 
 function loginApi(loginData) {
-  return axios.post('/user/login', loginData);
+  return axios.post("/user/login", loginData);
 }
 
 function* login(action) {
@@ -43,12 +39,12 @@ function* login(action) {
 }
 
 function* watchLogin() {
-  console.log('Try logging in');
+  console.log("Try logging in");
   yield takeEvery(LOG_IN_REQUEST, login);
 }
 
 function signUpApi(signUpData) {
-  return axios.post('/user/signup', signUpData);
+  return axios.post("/user/signup", signUpData);
 }
 
 function* signUp(action) {
@@ -72,7 +68,7 @@ function* watchSignUp() {
 }
 
 function loadUserApi() {
-  return axios.get('/user');
+  return axios.get("/user");
 }
 
 function* loadUser() {
@@ -96,7 +92,7 @@ function* watchLoadUser() {
 }
 
 function changePasswordApi({ id, password }) {
-  return axios.post('/user/password/change', { id, password });
+  return axios.post("/user/password/change", { id, password });
 }
 
 function* passwordChange(action) {
@@ -118,11 +114,31 @@ function* watchPasswordChange() {
   yield takeLatest(PASSWORD_CHANGE_REQUEST, passwordChange);
 }
 
+function addShopAPI(data) {
+  console.log(data);
+  return axios.post("/shop/add", data);
+}
+
+function* addShop(action) {
+  try {
+    const result = yield call(addShopAPI, action.data);
+    yield put({ type: ADD_SHOP_SUCCESS, data: result.data });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: ADD_SHOP_FAILURE, error: err });
+  }
+}
+
+function* watchAddShop() {
+  yield takeLatest(ADD_SHOP_REQUEST, addShop);
+}
+
 export default function* userSaga() {
   yield all([
     fork(watchLogin),
     fork(watchLoadUser),
     fork(watchSignUp),
     fork(watchPasswordChange),
+    fork(watchAddShop),
   ]);
 }

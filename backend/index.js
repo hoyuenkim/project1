@@ -9,6 +9,8 @@ const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const mongoose = require("mongoose");
+const sequelize = require("sequelize");
+const Op = sequelize.Op;
 
 const passportConfig = require("./passport");
 const db = require("./models");
@@ -19,6 +21,7 @@ const products = require("./routes/products");
 const user = require("./routes/user");
 const menu = require("./routes/menu");
 const payments = require("./routes/payments");
+const shop = require("./routes/shop");
 
 dotenv.config();
 const app = express();
@@ -74,6 +77,7 @@ app.use("/products", products);
 app.use("/user", user);
 app.use("/menu", menu);
 app.use("/payments", payments);
+app.use("/shop", shop);
 
 const options = {
   key: fs.readFileSync(__dirname + "/key.pem", "utf-8"),
@@ -82,7 +86,6 @@ const options = {
 
 app.post("/", async (req, res, next) => {
   try {
-    console.log(req.body.id);
     if (req.body.id) {
       const user = await db.User.findOne({
         where: { id: req.body.id },
@@ -98,7 +101,21 @@ app.post("/", async (req, res, next) => {
           },
         },
       });
+
       console.log(list);
+
+      const ShopIds = [];
+
+      await list.map((v) =>
+        ShopIds.push({
+          ShopId: v.ShopId,
+        }),
+      );
+
+      const products = await db.Product.findAll({ where: { [Op.or]: ShopIds } });
+
+      console.log(products);
+
       return res.status(200).json(list);
     } else {
       return res.status(200).json([]);

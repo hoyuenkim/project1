@@ -8,53 +8,61 @@ const initialState = {
   isLoadingProducts: false,
   isSelectingProduct: false,
   selectingProductError: null,
+  isLoadingShopList: false,
+  shopList: [],
+  loadingShopListError: null,
+  isAddingShop: false,
 };
 
-export const ADD_PRODUCT_REQUEST = 'ADD_PRODUCT_REQUEST';
-export const ADD_PRODUCT_SUCCESS = 'ADD_PRODUCT_SUCCESS';
-export const ADD_PRODUCT_FAILURE = 'ADD_PRODUCT_FAILURE';
+export const ADD_PRODUCT_REQUEST = "ADD_PRODUCT_REQUEST";
+export const ADD_PRODUCT_SUCCESS = "ADD_PRODUCT_SUCCESS";
+export const ADD_PRODUCT_FAILURE = "ADD_PRODUCT_FAILURE";
 
-export const ADMIN_PRODUCTS_REQUEST = 'ADMIN_PRODUCTS_REQUEST';
-export const ADMIN_PRODUCTS_SUCCESS = 'ADMIN_PRODUCTS_SUCCESS';
-export const ADMIN_PRODUCTS_FAILURE = 'ADMIN_PRODUCTS_FAILURE';
+export const ADMIN_PRODUCTS_REQUEST = "ADMIN_PRODUCTS_REQUEST";
+export const ADMIN_PRODUCTS_SUCCESS = "ADMIN_PRODUCTS_SUCCESS";
+export const ADMIN_PRODUCTS_FAILURE = "ADMIN_PRODUCTS_FAILURE";
 
-export const SELECT_PRODUCT_REQUEST = 'SELECT_PRODUCT_REQUEST';
-export const SELECT_PRODUCT_SUCCESS = 'SELECT_PRODUCT_SUCCESS';
-export const SELECT_PRODUCT_FAILURE = 'SELECT_PRODUCT_FAILURE';
+export const SELECT_PRODUCT_REQUEST = "SELECT_PRODUCT_REQUEST";
+export const SELECT_PRODUCT_SUCCESS = "SELECT_PRODUCT_SUCCESS";
+export const SELECT_PRODUCT_FAILURE = "SELECT_PRODUCT_FAILURE";
 
-export const EDIT_PRODUCT_REQUEST = 'EDIT_PRODUCT_REQUEST';
-export const EDIT_PRODUCT_SUCCESS = 'EDIT_PRODUCT_SUCCESS';
-export const EDIT_PRODUCT_FAILURE = 'EDIT_PRODUCT_FAILURE';
+export const EDIT_PRODUCT_REQUEST = "EDIT_PRODUCT_REQUEST";
+export const EDIT_PRODUCT_SUCCESS = "EDIT_PRODUCT_SUCCESS";
+export const EDIT_PRODUCT_FAILURE = "EDIT_PRODUCT_FAILURE";
 
-export const DELETE_PRODUCT_REQUEST = 'DELETE_PRODUCT_REQUEST';
-export const DELETE_PRODUCT_SUCCESS = 'DELETE_PRODUCT_SUCCESS';
-export const DELETE_PRODUCT_FAILURE = 'DELETE_PRODUCT_FAILURE';
+export const DELETE_PRODUCT_REQUEST = "DELETE_PRODUCT_REQUEST";
+export const DELETE_PRODUCT_SUCCESS = "DELETE_PRODUCT_SUCCESS";
+export const DELETE_PRODUCT_FAILURE = "DELETE_PRODUCT_FAILURE";
 
-export const CHECK_PRODUCT_SUCCESS = 'CHECK_PRODUCT_SUCCESS';
+export const CHECK_PRODUCT_SUCCESS = "CHECK_PRODUCT_SUCCESS";
 
-export const CHECK_ALL_PRODUCTS_SUCCESS = 'CHECK_ALL_PRODUCTS_SUCCESS';
+export const CHECK_ALL_PRODUCTS_SUCCESS = "CHECK_ALL_PRODUCTS_SUCCESS";
 
-export const DISCOUNT_PRODUCT_REQUEST = 'DISCOUNT_PRODUCT_REQUEST';
-export const DISCOUNT_PRODUCT_SUCCESS = 'DISCOUNT_PRODUCT_SUCCESS';
-export const DISCOUNT_PRODUCT_FAILURE = 'DISCOUNT_PRODUCT_FAILURE';
+export const DISCOUNT_PRODUCT_REQUEST = "DISCOUNT_PRODUCT_REQUEST";
+export const DISCOUNT_PRODUCT_SUCCESS = "DISCOUNT_PRODUCT_SUCCESS";
+export const DISCOUNT_PRODUCT_FAILURE = "DISCOUNT_PRODUCT_FAILURE";
 
-export const DELETE_DISCOUNT_REQUEST = 'DELETE_DISCOUNT_REQUEST';
-export const DELETE_DISCOUNT_SUCCESS = 'DELETE_DISCOUNT_SUCCESS';
-export const DELETE_DISCOUNT_FAILURE = 'DELETE_DISCOUNT_FAILURE';
+export const DELETE_DISCOUNT_REQUEST = "DELETE_DISCOUNT_REQUEST";
+export const DELETE_DISCOUNT_SUCCESS = "DELETE_DISCOUNT_SUCCESS";
+export const DELETE_DISCOUNT_FAILURE = "DELETE_DISCOUNT_FAILURE";
 
-export const ADD_CATEGORY_REQUEST = 'ADD_CATEGORY_REQUEST';
-export const ADD_CATEGORY_SUCCESS = 'ADD_CATEGORY_SUCCESS';
-export const ADD_CATEGORY_FAILURE = 'ADD_CATEGORY_FAILURE';
+export const ADD_CATEGORY_REQUEST = "ADD_CATEGORY_REQUEST";
+export const ADD_CATEGORY_SUCCESS = "ADD_CATEGORY_SUCCESS";
+export const ADD_CATEGORY_FAILURE = "ADD_CATEGORY_FAILURE";
 
-export const EDIT_CATEGORY_REQUEST = 'EDIT_CATEGORY_REQUEST';
-export const EDIT_CATEGORY_SUCCESS = 'EDIT_CATEGORY_SUCCESS';
-export const EDIT_CATEGORY_FAILURE = 'EDIT_CATEGORY_FAILURE';
+export const EDIT_CATEGORY_REQUEST = "EDIT_CATEGORY_REQUEST";
+export const EDIT_CATEGORY_SUCCESS = "EDIT_CATEGORY_SUCCESS";
+export const EDIT_CATEGORY_FAILURE = "EDIT_CATEGORY_FAILURE";
 
-export const DELETE_CATEGORY_REQUEST = 'DELETE_CATEGORY_REQUEST';
-export const DELETE_CATEGORY_SUCCESS = 'DELETE_CATEGORY_SUCCESS';
-export const DELETE_CATEGORY_FAILURE = 'DELETE_CATEGORY_FAILURE';
+export const DELETE_CATEGORY_REQUEST = "DELETE_CATEGORY_REQUEST";
+export const DELETE_CATEGORY_SUCCESS = "DELETE_CATEGORY_SUCCESS";
+export const DELETE_CATEGORY_FAILURE = "DELETE_CATEGORY_FAILURE";
 
-export const CATEGORY_FILTERED_SUCCESS = 'CATEGORY_FILTERED_SUCCESS';
+export const CATEGORY_FILTERED_SUCCESS = "CATEGORY_FILTERED_SUCCESS";
+
+export const LOAD_SHOPLIST_REQUEST = "LOAD_SHOPLIST_REQUEST";
+export const LOAD_SHOPLIST_SUCCESS = "LOAD_SHOPLIST_SUCCESS";
+export const LOAD_SHOPLIST_FAILURE = "LOAD_SHOPLIST_FAILURE";
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -233,12 +241,8 @@ const reducer = (state = initialState, action) => {
     }
 
     case DELETE_CATEGORY_SUCCESS: {
-      const filteredCategories = state.categories.filter(
-        (v) => v.id !== action.data.id
-      );
-      const products = state.originProducts.filter(
-        (v) => v.Category.id !== action.data.id
-      );
+      const filteredCategories = state.categories.filter((v) => v.id !== action.data.id);
+      const products = state.originProducts.filter((v) => v.Category.id !== action.data.id);
 
       return {
         ...state,
@@ -256,16 +260,24 @@ const reducer = (state = initialState, action) => {
       if (action.id == 0) {
         return { ...state, products: state.originProducts };
       } else if (action.id == -1) {
-        const discountedProduct = state.originProducts.filter(
-          (v) => v.Discount !== null
-        );
+        const discountedProduct = state.originProducts.filter((v) => v.Discount !== null);
         return { ...state, products: discountedProduct };
       } else {
-        const filteredProducts = state.originProducts.filter(
-          (v) => v.Category.id == action.id
-        );
+        const filteredProducts = state.originProducts.filter((v) => v.Category.id == action.id);
         return { ...state, products: filteredProducts };
       }
+    }
+
+    case LOAD_SHOPLIST_REQUEST: {
+      return { ...state, isLoadingShopList: true };
+    }
+
+    case LOAD_SHOPLIST_SUCCESS: {
+      return { ...state, shopList: action.data, isLoadingShopList: false };
+    }
+
+    case LOAD_SHOPLIST_FAILURE: {
+      return { ...state, isLoadingShopList: false, lodingShopListError: action.error };
     }
 
     default: {

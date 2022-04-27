@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const coordinatesSchema = new mongoose.Schema({
   division: {
@@ -13,7 +13,7 @@ const coordinatesSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  id: {
+  ShopId: {
     type: Number,
     required: true,
   },
@@ -23,6 +23,6 @@ const coordinatesSchema = new mongoose.Schema({
   },
 });
 
-coordinatesSchema.index({ location: '2dsphere' });
+coordinatesSchema.index({ location: "2dsphere" });
 
-module.exports = mongoose.model('coordinates', coordinatesSchema);
+module.exports = mongoose.model("coordinates", coordinatesSchema);

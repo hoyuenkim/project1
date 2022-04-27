@@ -21,12 +21,12 @@ const upload = multer({ storage });
 
 router.post("/add", upload.array("files"), async (req, res, next) => {
   try {
-    console.log(req.body.CategoryId);
     const product = await db.Product.create({
       title: req.body.title,
       price: req.body.price,
       description: req.body.description,
       CategoryId: req.body.CategoryId,
+      ShopId: req.body.ShopId,
     });
 
     const images = await Promise.all(
@@ -34,9 +34,7 @@ router.post("/add", upload.array("files"), async (req, res, next) => {
         return db.Image.create({ url: file.filename });
       }),
     );
-    const shop = await db.Shop.findOne({ UserId: req.body.UserId });
     await product.addImages(images);
-    await shop.addProduct(product);
     const finalProduct = await db.Product.findOne({
       where: { id: product.id },
       include: [

@@ -1,17 +1,17 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const db = require('../models');
-const multer = require('multer');
-const path = require('path');
-const passport = require('passport');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const randomstring = require('randomstring');
-const nodemailer = require('nodemailer');
-const CoordinateModel = require('../mongoModels/coordinates');
-require('dotenv').config();
+const db = require("../models");
+const multer = require("multer");
+const path = require("path");
+const passport = require("passport");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const randomstring = require("randomstring");
+const nodemailer = require("nodemailer");
+const CoordinateModel = require("../mongoModels/coordinates");
+require("dotenv").config();
 
-const uploadDir = path.join(__dirname, '../uploads');
+const uploadDir = path.join(__dirname, "../uploads");
 
 const storage = multer.diskStorage({
   destination(req, file, done) {
@@ -26,20 +26,20 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage, limit: { fileSize: 20 * 1024 * 1024 } });
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
   if (!req.user) {
-    return res.status(401).send('로그인이 필요합니다.');
+    return res.status(401).send("로그인이 필요합니다.");
   }
   const user = Object.assign({}, req.user.toJSON());
   delete user.password;
   return res.json(user);
 });
 
-router.post('/signup', async (req, res, next) => {
+router.post("/signup", async (req, res, next) => {
   try {
     const mailConfig = {
-      service: 'Naver',
-      host: 'smtp.naver.com',
+      service: "Naver",
+      host: "smtp.naver.com",
       port: 587,
       auth: {
         user: process.env.MAIL_EMAIL,
@@ -68,7 +68,7 @@ router.post('/signup', async (req, res, next) => {
       let message = {
         from: process.env.MAIL_EMAIL,
         to: req.body.username,
-        subject: '이메일 인증 요청 메일입니다.',
+        subject: "이메일 인증 요청 메일입니다.",
         html: `
         <body>
         <p>하기 링크를 클릭하여 이메일 인증을 완성해주세요</p>
@@ -88,12 +88,12 @@ router.post('/signup', async (req, res, next) => {
         lng: req.body.coordinates[0],
       });
       await CoordinateModel.create({
-        id: shop.id,
+        ShopId: shop.id,
         username: user.username,
         division: user.division,
         name: shop.name,
         location: {
-          type: 'Point',
+          type: "Point",
           coordinates: req.body.coordinates,
         },
       });
@@ -106,9 +106,9 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-router.post('/login', (req, res, next) => {
+router.post("/login", (req, res, next) => {
   try {
-    passport.authenticate('local', (passportError, user, info) => {
+    passport.authenticate("local", (passportError, user, info) => {
       if (passportError || !user) {
         res.status(401).json(info.reason);
         return;
@@ -124,17 +124,10 @@ router.post('/login', (req, res, next) => {
           include: [
             {
               model: db.Shop,
-              attributes: [
-                'id',
-                'name',
-                'lat',
-                'lng',
-                'address',
-                'addressDetail',
-              ],
+              attributes: ["id", "name", "lat", "lng", "address", "addressDetail"],
             },
           ],
-          attributes: ['id', 'name', 'username', 'division', 'lat', 'lng'],
+          attributes: ["id", "name", "username", "division", "lat", "lng"],
         });
         const userObject = JSON.parse(JSON.stringify(fullUser));
         const token = jwt.sign(userObject, process.env.JWT_SECRETKEY);
@@ -147,7 +140,7 @@ router.post('/login', (req, res, next) => {
   }
 });
 
-router.get('/certificate/:certificate', async (req, res, next) => {
+router.get("/certificate/:certificate", async (req, res, next) => {
   try {
     const user = await db.User.findOne({
       where: { certificate: req.params.certificate },
@@ -155,10 +148,10 @@ router.get('/certificate/:certificate', async (req, res, next) => {
     if (user) {
       await db.User.update(
         { authorized: true },
-        { where: { certificate: req.params.certificate } }
+        { where: { certificate: req.params.certificate } },
       );
     } else {
-      throw new Error('No user');
+      throw new Error("No user");
       return next();
     }
     return res.status(200).redirect(process.env.FRONTEND_IP);
@@ -168,13 +161,13 @@ router.get('/certificate/:certificate', async (req, res, next) => {
   }
 });
 
-router.post('/logout', async (req, res) => {
+router.post("/logout", async (req, res) => {
   await req.logout();
   await req.session.destroy();
-  return res.json({ message: 'Logged out successfully' });
+  return res.json({ message: "Logged out successfully" });
 });
 
-router.post('/confirm/bizcode', async (req, res, next) => {
+router.post("/confirm/bizcode", async (req, res, next) => {
   try {
     const result = await db.Shop.findOne({
       where: { bizcode: req.body.bizcode },
@@ -186,7 +179,7 @@ router.post('/confirm/bizcode', async (req, res, next) => {
   }
 });
 
-router.post('/confirm/email', async (req, res, next) => {
+router.post("/confirm/email", async (req, res, next) => {
   try {
     const result = await db.User.findOne({
       where: { username: req.body.email },
@@ -198,7 +191,7 @@ router.post('/confirm/email', async (req, res, next) => {
   }
 });
 
-router.post('/confirm/password', async (req, res) => {
+router.post("/confirm/password", async (req, res) => {
   try {
     const user = await db.User.findOne({ where: { id: req.body.id } });
     const result = await bcrypt.compare(req.body.password, user.password);
@@ -209,31 +202,28 @@ router.post('/confirm/password', async (req, res) => {
   }
 });
 
-router.post('/password/change', async (req, res) => {
+router.post("/password/change", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 12);
-    await db.User.update(
-      { password: hashedPassword },
-      { where: { id: req.body.id } }
-    );
-    return res.status(200).send('Password changed');
+    await db.User.update({ password: hashedPassword }, { where: { id: req.body.id } });
+    return res.status(200).send("Password changed");
   } catch (err) {
     console.error(err);
     next(err);
   }
 });
 
-router.post('/password/find', async (req, res, next) => {
+router.post("/password/find", async (req, res, next) => {
   try {
     const user = await db.User.findOne({
       where: { username: req.body.username },
     });
     if (!user) {
-      return res.status(401).json({ message: '존재하지 않는 아이디입니다.' });
+      return res.status(401).json({ message: "존재하지 않는 아이디입니다." });
     }
     const mailConfig = {
-      service: 'Naver',
-      host: 'smtp.naver.com',
+      service: "Naver",
+      host: "smtp.naver.com",
       port: 587,
       auth: {
         user: process.env.MAIL_EMAIL,
@@ -243,7 +233,7 @@ router.post('/password/find', async (req, res, next) => {
     let message = {
       from: process.env.MAIL_EMAIL,
       to: req.body.username,
-      subject: '임시비밀번호 입니다.',
+      subject: "임시비밀번호 입니다.",
       html: `
       <body>
         <p>임시 비밀번호 $${certificate}</p>

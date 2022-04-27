@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { all, put, fork, call, takeLatest } from 'redux-saga/effects';
+import axios from "axios";
+import { all, put, fork, call, takeLatest } from "redux-saga/effects";
 import {
   ADD_PRODUCT_REQUEST,
   ADD_PRODUCT_SUCCESS,
@@ -31,10 +31,16 @@ import {
   DELETE_DISCOUNT_REQUEST,
   DELETE_DISCOUNT_SUCCESS,
   DELETE_DISCOUNT_FAILURE,
-} from '../reducers/shop';
+  LOAD_SHOPLIST_FAILURE,
+  LOAD_SHOPLIST_SUCCESS,
+  LOAD_SHOPLIST_REQUEST,
+  ADD_SHOP_SUCCESS,
+  ADD_SHOP_FAILURE,
+  ADD_SHOP_REQUEST,
+} from "../reducers/shop";
 
 function addProductApi(data) {
-  return axios.post('/products/add', data);
+  return axios.post("/products/add", data);
 }
 function* addProduct(action) {
   try {
@@ -50,7 +56,7 @@ function* watchAddProduct() {
 }
 
 function loadProductsApi(ShopId) {
-  return axios.post('/products/load', { ShopId });
+  return axios.post("/products/load", { ShopId });
 }
 function* loadProducts(action) {
   try {
@@ -67,7 +73,7 @@ function* watchLoadProducts() {
 }
 
 function deleteProductAPI(id) {
-  return axios.post('/products/delete', { id });
+  return axios.post("/products/delete", { id });
 }
 function* deleteProduct(action) {
   try {
@@ -84,7 +90,7 @@ function* watchDeleteProduct() {
 
 function selectProductAPI(ProductId) {
   console.log({ ProductId });
-  return axios.post('/products/select', { ProductId });
+  return axios.post("/products/select", { ProductId });
 }
 function* selectProduct(action) {
   try {
@@ -104,12 +110,12 @@ function* watchSelectProduct() {
 }
 
 function editProdudctAPI(data) {
-  return axios.post('/products/edit', data);
+  return axios.post("/products/edit", data);
 }
 
 function* editProduct(action) {
   try {
-    console.log('result');
+    console.log("result");
     const result = yield call(editProdudctAPI, action.formData);
     console.log(result);
     yield put({ type: EDIT_PRODUCT_SUCCESS, data: result.data });
@@ -124,7 +130,7 @@ function* watchEditProduct() {
 }
 
 function discountProductAPI(data) {
-  return axios.post('/products/discount', data);
+  return axios.post("/products/discount", data);
 }
 
 function* discountProduct(action) {
@@ -142,7 +148,7 @@ function* watchDiscountProduct() {
 }
 
 function addCategoryAPI(data) {
-  return axios.post('/products/category/add', data);
+  return axios.post("/products/category/add", data);
 }
 
 function* addCategory(action) {
@@ -160,7 +166,7 @@ function* watchAddCategory() {
 }
 
 function editCategoryAPI(data) {
-  return axios.post('/products/category/update', data);
+  return axios.post("/products/category/update", data);
 }
 
 function* editCategory(action) {
@@ -178,7 +184,7 @@ function* watchEditCategory() {
 }
 
 function deleteCategoryAPI(data) {
-  return axios.post('/products/category/delete', data);
+  return axios.post("/products/category/delete", data);
 }
 
 function* deleteCategory(action) {
@@ -197,7 +203,7 @@ function* watchDeleteCategory() {
 
 function deleteDiscountAPI({ ProductIds, ShopId, CategoryId }) {
   console.log(ProductIds, ShopId, CategoryId);
-  return axios.post('/products/discount/delete', {
+  return axios.post("/products/discount/delete", {
     ProductIds,
     ShopId,
     CategoryId,
@@ -218,6 +224,24 @@ function* watchDeleteDiscount() {
   yield takeLatest(DELETE_DISCOUNT_REQUEST, deleteDiscount);
 }
 
+function loadShopListAPI({ ShopId }) {
+  return axios.post("/shop/list", { ShopId });
+}
+
+function* loadShopList(action) {
+  try {
+    const result = yield call({ loadShopListAPI, ShopId: action.ShopId });
+    yield put({ type: LOAD_SHOPLIST_SUCCESS, data: result.data });
+  } catch (err) {
+    console.error(err);
+    yield put({ type: LOAD_SHOPLIST_FAILURE });
+  }
+}
+
+function* watchLoadShopList() {
+  yield takeLatest(LOAD_SHOPLIST_REQUEST, loadShopList);
+}
+
 export default function* productsSaga() {
   yield all([
     fork(watchAddProduct),
@@ -230,5 +254,7 @@ export default function* productsSaga() {
     fork(watchDeleteCategory),
     fork(watchAddCategory),
     fork(watchDeleteDiscount),
+    fork(watchLoadShopList),
+    // fork(watchAddShop),
   ]);
 }

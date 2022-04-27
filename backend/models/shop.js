@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const Shop = sequelize.define(
-    'Shop',
+    "Shop",
     {
       name: {
         type: DataTypes.STRING(20),
@@ -28,9 +28,9 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
-      charset: 'utf8',
-      collate: 'utf8_general_ci',
-    }
+      charset: "utf8",
+      collate: "utf8_general_ci",
+    },
   );
 
   Shop.associate = (db) => {
@@ -40,6 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     db.Shop.hasMany(db.Like);
     db.Shop.belongsTo(db.User);
     db.Shop.hasMany(db.Payments);
+    db.Shop.hasMany(db.Stock);
   };
   return Shop;
 };

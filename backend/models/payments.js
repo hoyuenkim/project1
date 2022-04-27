@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   const Payments = sequelize.define(
-    'Payments',
+    "Payments",
     {
       status: {
         type: DataTypes.INTEGER,
@@ -28,8 +28,8 @@ module.exports = (sequelize, DataTypes) => {
       ShopName: DataTypes.STRING,
     },
     {
-      charset: 'utf8',
-      collate: 'utf8_general_ci',
+      charset: "utf8",
+      collate: "utf8_general_ci",
     },
   );
   Payments.associate = (db) => {
@@ -38,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
     db.Payments.belongsTo(db.User);
     db.Payments.belongsTo(db.Iamport);
     db.Payments.hasOne(db.Rating);
+    db.Payments.belongsTo(db.Stock);
   };
   return Payments;
 };
