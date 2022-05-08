@@ -11,7 +11,7 @@ const Certificate = () => {
   const [domain, setDomain] = useState();
 
   useEffect(() => {
-    setDomain("https://" + username.slice(username.indexOf("@") + 1, username.length + 1));
+    setDomain("https://www." + username.slice(username.indexOf("@") + 1, username.length + 1));
   }, []);
 
   useEffect(() => {

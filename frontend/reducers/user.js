@@ -16,6 +16,7 @@ const initialState = {
   passwordChangeError: null,
   isAddingShop: false,
   addShopError: null,
+  userCoordinates: undefined,
 };
 
 export const LOG_IN_REQUEST = "LOG_IN_REQUEST";
@@ -94,9 +95,6 @@ export default (state = initialState, action) => {
       case PASSWORD_CHANGE_FAILURE:
         draft.changingPassword = false;
         draft.passwordChangeError = action.error;
-      default:
-        state;
-        break;
       case ADD_SHOP_REQUEST:
         draft.isAddingShop = true;
         break;
@@ -107,6 +105,10 @@ export default (state = initialState, action) => {
       case ADD_SHOP_FAILURE:
         draft.isAddingShop = false;
         draft.addShopError = action.error;
+        break;
+
+      default:
+        state;
         break;
     }
   });

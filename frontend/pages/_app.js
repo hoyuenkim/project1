@@ -1,14 +1,14 @@
-import { useStore } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
-import { useState, useEffect } from 'react';
+import { useStore } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { useState, useEffect } from "react";
 
-import React from 'react';
-import Head from 'next/head';
-import 'antd/dist/antd.css';
-import wrapper from '../store/configureStore';
-import withReduxSaga from 'next-redux-saga';
+import React from "react";
+import Head from "next/head";
+import "antd/dist/antd.css";
+import wrapper from "../store/configureStore";
+import withReduxSaga from "next-redux-saga";
 
-import CentralAppLayout from '../components/Layout/CentralAppLayout';
+import CentralAppLayout from "../components/Layout/CentralAppLayout";
 
 const App = ({ Component }) => {
   const store = useStore((state) => state);
@@ -18,10 +18,7 @@ const App = ({ Component }) => {
       <Head>
         <title>Order</title>
         <meta name="viewport" content="width=device-width, user-scalable=no" />
-        <script
-          type="text/javascript"
-          src="https://code.jquery.com/jquery-1.12.4.min.js"
-        ></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
         <script
           type="text/javascript"
           src="https://cdn.iamport.kr/js/iamport.payment-1.1.5.js"

@@ -10,6 +10,7 @@ const initialState = {
   clientHistoryRemoving: false,
   clientHistoryRemovingError: null,
   isSeachingHistory: false,
+  userCoordinates: undefined,
 };
 
 export const PAYMENT_REQUEST = "PAYMENT_REQUEST";

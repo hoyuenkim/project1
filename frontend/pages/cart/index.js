@@ -1,16 +1,16 @@
-import { List, Avatar, Card, Button, Row, Col, Divider, Empty } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
-import { RestOutlined } from '@ant-design/icons';
-import CartAmountToggle from '../../components/Generalui/CartAmoutToggle';
-import NumberFormat from 'react-number-format';
-import { REMOVE_ITEM_REQUEST, CLEAR_CART_REQUEST } from '../../reducers/cart';
-import { useState, useEffect } from 'react';
-import { useWindowSize } from '@react-hook/window-size';
-import axios from 'axios';
-import { useRouter } from 'next/router';
-import { onClickPayment } from '../../components/Generalui/Payment';
-import ModalInterface from '../../components/Generalui/Modal';
-import { PAGE_CHANGE_SUCCESS } from '../../reducers/admin';
+import { List, Avatar, Card, Button, Row, Col, Divider, Empty } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { RestOutlined } from "@ant-design/icons";
+import CartAmountToggle from "../../components/Generalui/CartAmoutToggle";
+import NumberFormat from "react-number-format";
+import { REMOVE_ITEM_REQUEST, CLEAR_CART_REQUEST } from "../../reducers/cart";
+import { useState, useEffect } from "react";
+import { useWindowSize } from "@react-hook/window-size";
+import axios from "axios";
+import { useRouter } from "next/router";
+import { onClickPayment } from "../../components/Generalui/Payment";
+import ModalInterface from "../../components/Generalui/Modal";
+import { PAGE_CHANGE_SUCCESS } from "../../reducers/admin";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -21,17 +21,13 @@ const Cart = () => {
   const [windowWidth, windowHeight] = useWindowSize();
   const router = useRouter();
 
-  useEffect(() => {
-    dispatch({ type: PAGE_CHANGE_SUCCESS, data: 'cart' });
-  });
-
   const onChangeToggleModal = () => setToggleModal((prev) => !prev);
 
   const product = cart[0];
 
   const paymentStart = async () => {
     onClickPayment(
-      'cart',
+      "cart",
       product,
       isLoggedIn,
       session,
@@ -40,21 +36,25 @@ const Cart = () => {
       cart,
       router,
       ShopId,
-      TableId
+      TableId,
     );
   };
+
+  useEffect(() => {
+    dispatch({ type: PAGE_CHANGE_SUCCESS, data: "cart" });
+  }, []);
 
   return (
     <>
       <ModalInterface
-        content={'로그인을 하셔야 합니다.'}
+        content={"로그인을 하셔야 합니다."}
         toggleModal={toggleModal}
         onChangeToggleModal={onChangeToggleModal}
-        title={'경고'}
+        title={"경고"}
       />
       {cart.length === 0 ? (
-        <Card style={{ height: '100vh' }}>
-          <div style={{ marginTop: windowHeight * 0.3, textAlign: 'center' }}>
+        <Card style={{ height: "100vh" }}>
+          <div style={{ marginTop: windowHeight * 0.3, textAlign: "center" }}>
             <Empty />
             <h1>장바구니가 비었습니다</h1>
           </div>
@@ -67,7 +67,7 @@ const Cart = () => {
             <List.Item>
               <Card
                 title={<h1>{item.title}</h1>}
-                style={{ width: '100%' }}
+                style={{ width: "100%" }}
                 extra={
                   <h2>
                     <RestOutlined
@@ -92,24 +92,19 @@ const Cart = () => {
                         <Row gutter={[8, 16]}>
                           <Col span={24}>{item.description}</Col>
                           <Col span={16}>
-                            가격:{' '}
+                            가격:{" "}
                             <NumberFormat
                               value={
                                 item.Discount
-                                  ? item.price *
-                                    (100 - item.Discount.rate) *
-                                    0.01
+                                  ? item.price * (100 - item.Discount.rate) * 0.01
                                   : item.price
                               }
-                              displayType={'text'}
+                              displayType={"text"}
                               thousandSeparator={true}
                             />
                           </Col>
                           <Col span={8}>
-                            <CartAmountToggle
-                              id={item.id}
-                              quantity={item.quantity}
-                            />
+                            <CartAmountToggle id={item.id} quantity={item.quantity} />
                           </Col>
                         </Row>
                       }
@@ -118,18 +113,15 @@ const Cart = () => {
                 />
                 <Divider />
                 <Row gutter={[8, 16]}>
-                  <Col style={{ textAlign: 'right' }} span={24}>
-                    총액:{' '}
+                  <Col style={{ textAlign: "right" }} span={24}>
+                    총액:{" "}
                     <NumberFormat
                       value={
                         item.Discount
-                          ? item.price *
-                            (100 - item.Discount.rate) *
-                            0.01 *
-                            item.quantity
+                          ? item.price * (100 - item.Discount.rate) * 0.01 * item.quantity
                           : item.price * item.quantity
                       }
-                      displayType={'text'}
+                      displayType={"text"}
                       thousandSeparator={true}
                     />
                   </Col>
@@ -140,11 +132,7 @@ const Cart = () => {
         />
       )}
       {cart.length > 0 && (
-        <Button
-          onClick={paymentStart}
-          type={'primary'}
-          style={{ width: '100%' }}
-        >
+        <Button onClick={paymentStart} type={"primary"} style={{ width: "100%" }}>
           결제하기
         </Button>
       )}

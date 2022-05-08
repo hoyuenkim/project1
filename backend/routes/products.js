@@ -133,9 +133,7 @@ router.post("/delete", async (req, res, next) => {
 
 router.post("/load", async (req, res, next) => {
   try {
-    console.log("load");
     console.log(req.body.ShopId);
-
     const products = await db.Product.findAll({
       where: { ShopId: req.body.ShopId },
       include: [
@@ -148,9 +146,10 @@ router.post("/load", async (req, res, next) => {
       ],
       order: [["id", "DESC"]],
     });
-    const categories = await db.Category.findAll({ where: { ShopId: req.body.ShopId } });
 
     console.log(products);
+
+    const categories = await db.Category.findAll({ where: { ShopId: req.body.ShopId } });
 
     const result = [products, categories];
 

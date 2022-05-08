@@ -28,7 +28,6 @@ const Index = () => {
   const { session } = useSelector((state) => state.user);
   const { Shops } = session;
   const ShopInfo = Shops.filter((shop) => {
-    console.log(shop.id == query.ShopId);
     return shop.id == query.ShopId;
   });
   const dispatch = useDispatch();
@@ -36,6 +35,7 @@ const Index = () => {
   if (!session || session.division === false) {
     return router.back();
   } else {
+    console.log(query.ShopId);
     useEffect(() => {
       dispatch({ type: ADMIN_PRODUCTS_REQUEST, ShopId: query.ShopId });
     }, []);

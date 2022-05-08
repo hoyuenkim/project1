@@ -56,6 +56,7 @@ function* watchAddProduct() {
 }
 
 function loadProductsApi(ShopId) {
+  console.log(ShopId);
   return axios.post("/products/load", { ShopId });
 }
 function* loadProducts(action) {

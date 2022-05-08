@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useEffect } from "react";
-import { Card, Button, Modal, List, Comment, Form, Input } from "antd";
+import { Card, Button, Modal, List, Avatar } from "antd";
 import { ADD_SHOP_REQUEST } from "../../../reducers/user";
 import { useInput } from "../../../components/Generalui/CustomHooks";
 import ShopAddForm from "../../../components/Forms/ShopAddForm";
@@ -55,15 +55,22 @@ const Index = () => {
         title={session ? `${session.name}님의 매장 리스트` : "매장 리스트"}
         extra={<Button onClick={onClickAddShop}>매장추가</Button>}
       >
-        {session.Shops.map((shop) => (
-          <Card
-            title={shop.name}
-            actions={[
-              <div onClick={() => router.push(`/shop/admin/${shop.id}`)}>매장관리</div>,
-              <div>매장삭제</div>,
-            ]}
-          ></Card>
-        ))}
+        <List
+          layout={"horizental"}
+          dataSource={session.Shops}
+          renderItem={(shop) => {
+            return (
+              <List.Item
+                actions={[
+                  <div onClick={() => router.push(`/shop/admin/${shop.id}`)}>매장관리</div>,
+                  <div>매장삭제</div>,
+                ]}
+              >
+                <List.Item.Meta avatar={<Avatar>{shop.name[0]}</Avatar>} title={shop.name} />
+              </List.Item>
+            );
+          }}
+        />
       </Card>
     </>
   );

@@ -40,11 +40,13 @@ const Console = () => {
     dispatch({ type: PAGE_CHANGE_SUCCESS, data: "admin" });
   }, []);
 
+  const ShopId = query.ShopId;
+
   if (!session || session.division === false) {
     return router.back();
   } else {
     useEffect(() => {
-      dispatch({ type: ADMIN_PRODUCTS_REQUEST, ShopId: session.Shops[0].id });
+      dispatch({ type: ADMIN_PRODUCTS_REQUEST, ShopId });
     }, []);
   }
 
@@ -91,7 +93,7 @@ const Console = () => {
           type={"admin"}
           categories={categories}
           setCategory={setCategory}
-          ShopId={session.Shops[0].id}
+          ShopId={ShopId}
           products={products}
           originProducts={originProducts}
         />
@@ -124,7 +126,7 @@ const Console = () => {
               setProduct={setProduct}
               setDiscount={setDiscount}
               category={category}
-              ShopId={session.Shops[0].id}
+              ShopId={ShopId}
             />
           </Modal>
         )}

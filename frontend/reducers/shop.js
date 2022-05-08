@@ -9,9 +9,11 @@ const initialState = {
   isSelectingProduct: false,
   selectingProductError: null,
   isLoadingShopList: false,
-  shopList: [],
   loadingShopListError: null,
   isAddingShop: false,
+  userCoordinates: undefined,
+  shopCoordinates: undefined,
+  productsNear: undefined,
 };
 
 export const ADD_PRODUCT_REQUEST = "ADD_PRODUCT_REQUEST";
@@ -63,6 +65,13 @@ export const CATEGORY_FILTERED_SUCCESS = "CATEGORY_FILTERED_SUCCESS";
 export const LOAD_SHOPLIST_REQUEST = "LOAD_SHOPLIST_REQUEST";
 export const LOAD_SHOPLIST_SUCCESS = "LOAD_SHOPLIST_SUCCESS";
 export const LOAD_SHOPLIST_FAILURE = "LOAD_SHOPLIST_FAILURE";
+
+export const SET_COORDINATES_SUCCESS = "SET_COORDINATES_SUCCESS";
+
+export const SET_SHOPCOORDINATES_SUCCESS = "SET_SHOPCOORDINATES_SUCCESS";
+
+export const NEAR_ADD_QUANTITY_REQUEST = "NEAR_ADD_QUANTITY_REQUEST";
+export const NEAR_SUBSTRACT_QUANTITY_REQUEST = "NEAR_SUBSTRACT_QUANTITY_REQUEST";
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -278,6 +287,46 @@ const reducer = (state = initialState, action) => {
 
     case LOAD_SHOPLIST_FAILURE: {
       return { ...state, isLoadingShopList: false, lodingShopListError: action.error };
+    }
+
+    case SET_COORDINATES_SUCCESS:
+      return {
+        ...state,
+        userCoordinates: action.data,
+      };
+
+    case SET_SHOPCOORDINATES_SUCCESS: {
+      console.log(action.data);
+      return { ...state, shopCoordinates: action.data.list, productsNear: action.data.products };
+    }
+
+    case NEAR_ADD_QUANTITY_REQUEST: {
+      console.log(state.productsNear);
+      const index = state.productsNear.findIndex((near) => near.id == action.data.id);
+      console.log(index);
+      const product = state.productsNear[index];
+      let quantity = product.quantity;
+      quantity < 100 ? (quantity += 1) : 99;
+      const productsNear = [...state.productsNear];
+      productsNear[index] = { ...product, quantity };
+
+      return {
+        ...state,
+        productsNear,
+      };
+    }
+
+    case NEAR_SUBSTRACT_QUANTITY_REQUEST: {
+      const index = state.productsNear.findIndex((near) => near.id === action.data.id);
+      const product = state.productsNear[index];
+      let quantity = product.quantity;
+      quantity > 1 ? (quantity -= 1) : 1;
+      const productsNear = [...state.productsNear];
+      productsNear[index] = { ...product, quantity };
+      return {
+        ...state,
+        productsNear,
+      };
     }
 
     default: {

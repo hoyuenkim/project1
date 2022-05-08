@@ -1,5 +1,5 @@
-import { Col, Row } from 'antd';
-import NavibarLayout from './NavibarLayout';
+import { Col, Row, Modal } from "antd";
+import NavibarLayout from "./NavibarLayout";
 
 const CentralAppLayout = ({ children }) => {
   return (

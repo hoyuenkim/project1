@@ -1,11 +1,31 @@
-import { Card, Carousel, Image } from "antd";
-import { useEffect, useState, useCallback } from "react";
+import {
+  Card,
+  Carousel,
+  Image,
+  Tag,
+  List,
+  Switch,
+  Avatar,
+  Row,
+  Col,
+  Divider,
+  Space,
+  Typography,
+} from "antd";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { NumberOutlined, DollarOutlined } from "@ant-design/icons";
 import OneSignal from "react-onesignal";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { LOAD_EVENTS_REQUEST, PAGE_CHANGE_SUCCESS } from "../reducers/admin";
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { CLEAR_CART_REQUEST } from "../reducers/cart";
+import MapComponent from "../components/Generalui/MapComponent";
+import { SET_SHOPCOORDINATES_SUCCESS } from "../reducers/shop";
+import NumberFormat from "react-number-format";
+import { onClickPayment } from "../components/Generalui/Payment";
+import ModalInterface from "../components/Generalui/Modal";
+import NearAmountToggle from "../components/Generalui/NearAmountToggle";
 
 const Index = () => {
   axios.defaults.baseURL = `${process.env.BACKEND_IP}`;
@@ -13,65 +33,133 @@ const Index = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const [coordinates, setCoordinates] = useState();
+  const [toggle, setToggle] = useState(true);
+  const onChangeToggle = () => {
+    setToggle((prev) => !prev);
+  };
+
+  const [toggleModal, setToggleModal] = useState(false);
+
+  const onChangeToggleModal = () => setToggleModal((prev) => !prev);
+
+  const { shopCoordinates } = useSelector((state) => state.shop);
 
   useEffect(() => {
     dispatch({ type: LOAD_EVENTS_REQUEST });
-  });
+  }, []);
 
   useEffect(() => {
     dispatch({ type: PAGE_CHANGE_SUCCESS, data: "index" });
-  });
+  }, []);
 
   const { events } = useSelector((state) => state.admin);
   const { isLoggedIn, session } = useSelector((state) => state.user);
+  const { productsNear } = useSelector((state) => state.shop);
 
-  if (session && coordinates == null) {
-    axios
-      .post("/", { id: session.id })
-      .then((result) => {
-        setCoordinates(result.data);
-      })
-      .catch((err) => console.error(err));
-  }
+  useEffect(() => {
+    if (session && shopCoordinates == undefined) {
+      axios
+        .post("/", { id: session.id })
+        .then((result) => {
+          console.log(result);
+          dispatch({ type: SET_SHOPCOORDINATES_SUCCESS, data: result.data });
+        })
+        .catch((err) => console.error(err));
+    }
+  }, [session, shopCoordinates]);
+
+  const paymentStart = async (product) => {
+    dispatch({ type: CLEAR_CART_REQUEST });
+    return onClickPayment("single", product, isLoggedIn, session, onChangeToggleModal);
+  };
 
   return (
     <>
+      <ModalInterface
+        content={"로그인을 하셔야 합니다."}
+        toggleModal={toggleModal}
+        onChangeToggleModal={onChangeToggleModal}
+        title={"경고"}
+      />
       {isLoggedIn && session ? (
-        <Map
-          center={{ lat: session.lat, lng: session.lng }}
-          style={{ width: "100%", height: "360px" }}
-          level={5}
+        <Card
+          title={toggle ? "주변 가게" : "추천 메뉴"}
+          extra={<Switch onClick={onChangeToggle} />}
         >
-          {session && session.division === false && (
-            <MapMarker key={session.id} position={{ lat: session.lat, lng: session.lng }}>
-              <div style={{ textAlign: "center" }}>{session && session.name}</div>
-            </MapMarker>
+          {toggle ? (
+            <MapComponent session={session} shopCoordinates={shopCoordinates} />
+          ) : (
+            <List
+              dataSource={productsNear}
+              renderItem={(product) => (
+                <List.Item>
+                  <List.Item.Meta
+                    avatar={
+                      <Avatar
+                        src={
+                          product.Images[0] &&
+                          `${process.env.BACKEND_IP}/uploads/${product.Images[0].url}`
+                        }
+                      />
+                    }
+                    description={
+                      <Card
+                        title={
+                          <Space direction={"horizental"}>
+                            <Typography.Title
+                              level={5}
+                            >{`[${product.Shop.name}] ${product.title}`}</Typography.Title>
+                            {product.Discount && (
+                              <Tag color={"magenta"}>- {product.Discount.rate}%</Tag>
+                            )}
+                          </Space>
+                        }
+                        actions={[
+                          <div style={{ cursor: "pointer" }} onClick={() => paymentStart(product)}>
+                            즉시구매
+                          </div>,
+                          <div style={{ cursor: "pointer" }}>장바구니</div>,
+                        ]}
+                      >
+                        <Card.Meta
+                          description={
+                            <>
+                              <NearAmountToggle
+                                id={product.id}
+                                quantity={product.quantity}
+                                price={product.price}
+                                discount={product.Discount}
+                              />
+                              <Divider orientation={"left"} style={{ fontSize: "5px" }}></Divider>
+                              <div style={{ textAlign: "right" }}>
+                                <Typography.Text>
+                                  총액:{" "}
+                                  <NumberFormat
+                                    value={
+                                      product.Discount
+                                        ? product.price *
+                                          (100 - product.Discount.rate) *
+                                          0.01 *
+                                          product.quantity
+                                        : product.price * product.quantity
+                                    }
+                                    displayType={"text"}
+                                    thousandSeparator={true}
+                                  />
+                                  원
+                                </Typography.Text>
+                              </div>
+                            </>
+                          }
+                        />
+                      </Card>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
           )}
-          {coordinates &&
-            coordinates.length > 0 &&
-            coordinates.map((result) => {
-              return (
-                <MapMarker
-                  key={result.id}
-                  position={{
-                    lat: result.location.coordinates[1],
-                    lng: result.location.coordinates[0],
-                  }}
-                  infoWindowOptions={{
-                    className: "shop-maker",
-                    style: {
-                      display: "inline-block",
-                      fontSize: 5,
-                    },
-                  }}
-                  onClick={() => router.push(`/menu/${result.ShopId}`)}
-                >
-                  <div style={{ textAlign: "center" }}>{result.name}</div>
-                </MapMarker>
-              );
-            })}
-        </Map>
+        </Card>
       ) : (
         <Card>
           <Card.Meta

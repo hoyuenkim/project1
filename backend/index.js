@@ -11,6 +11,7 @@ const fs = require("fs");
 const mongoose = require("mongoose");
 const sequelize = require("sequelize");
 const Op = sequelize.Op;
+const schedule = require("node-schedule");
 
 const passportConfig = require("./passport");
 const db = require("./models");
@@ -86,13 +87,29 @@ const options = {
 
 app.post("/", async (req, res, next) => {
   try {
-    if (req.body.id) {
-      const user = await db.User.findOne({
-        where: { id: req.body.id },
-      });
+    let x;
+    let y;
 
-      const x = user.lat;
-      const y = user.lng;
+    let list;
+
+    if (req.body) {
+      let user;
+      if (req.body.coordinates) {
+        y = req.body.coordinates.lat;
+        x = req.body.coordinates.lng;
+      }
+
+      if (req.body.id) {
+        user = await db.User.findOne({
+          where: { id: req.body.id },
+        });
+        x = user.lat;
+        y = user.lng;
+      }
+
+      console.log(x);
+      console.log(y);
+
       const list = await CoordinateModel.find({
         location: {
           $near: {
@@ -102,8 +119,6 @@ app.post("/", async (req, res, next) => {
         },
       });
 
-      console.log(list);
-
       const ShopIds = [];
 
       await list.map((v) =>
@@ -111,18 +126,36 @@ app.post("/", async (req, res, next) => {
           ShopId: v.ShopId,
         }),
       );
+      const products = await db.Product.findAll({
+        where: { [Op.or]: ShopIds },
+        include: [{ model: db.Image }, { model: db.Discount }, { model: db.Shop }],
+      });
 
-      const products = await db.Product.findAll({ where: { [Op.or]: ShopIds } });
+      const filteredProducts = products.filter((product) => product.Discount !== null);
 
-      console.log(products);
-
-      return res.status(200).json(list);
-    } else {
+      return res.status(200).json({ list: list, products: filteredProducts });
+    } else if (req.body === "undefined") {
       return res.status(200).json([]);
     }
   } catch (err) {
     console.error(err);
     return next();
+  }
+});
+
+// schedule.scheduleJob("**00 00**", async () => {
+//   try {
+//     await db.Stock.delete({ where: { [Op.lt]: { dueDate: Date.now() } } });
+//   } catch (err) {
+//     console.error(err);
+//   }
+// });
+
+schedule.scheduleJob("* 00 ***", async () => {
+  try {
+    await db.User.delete({ where: { certificate: false } });
+  } catch (err) {
+    return console.error(err);
   }
 });
 
