@@ -1,5 +1,6 @@
 import { Col, Row, Modal } from "antd";
 import NavibarLayout from "./NavibarLayout";
+import { useSelector } from "react-redux";
 
 const CentralAppLayout = ({ children }) => {
   return (

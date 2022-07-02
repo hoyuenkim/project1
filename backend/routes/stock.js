@@ -1,16 +1,17 @@
 const router = require("express").Router();
 require("dotenv").config();
 const db = require("../models");
+const { Op } = require("sequelize");
 
 router.post("/add", async (req, res, next) => {
   try {
     const tomorrow = Date.now() + 60 * 60 * 24 * 1000;
-    const { quantity, discount, ShopId, ProductId, dueDate } = req.body;
+    const { stock, discount, ShopId, ProductId, dueDate } = req.body;
     const newStock = await db.Stock.create({
-      quantity,
+      stock,
       ShopId,
       ProductId,
-      discount,
+      discount: discount * 0.01,
       dueDate: dueDate ? dueDate : new Date(tomorrow),
     });
     const stockData = await db.Stock.findOne({
@@ -22,51 +23,51 @@ router.post("/add", async (req, res, next) => {
         },
       ],
     });
-    return res.status(200).send({ stockData });
+    return res.status(200).json({ stockData });
   } catch (err) {
-    console.err(err);
+    console.error(err.response);
     return next(err);
   }
 });
 
-router.post("/sold", async (req, res, next) => {
+router.post("/load", async (req, res, next) => {
   try {
-    const { id, quantity } = req.body;
-    const stock = await db.Stock.findOne({ where: { id } });
-    const reducedQuantity = stock.quantity - quantity;
-    await db.Stock.update({ quantity: reducedQuantity }, { where: { id } });
-    const updatedStock = await db.Stock.findOne({
-      where: { id },
+    const products = await db.Stock.findAll({
+      where: {
+        [Op.and]: [{ ShopId: req.body.ShopId }, { dueDate: { [Op.gte]: new Date() } }],
+      },
       include: [
         {
           model: db.Product,
-          include: [{ model: db.Image }],
+          include: [
+            { model: db.Image },
+            { model: db.Shop, attributes: ["id", "name"] },
+            { model: db.Comment },
+            { model: db.Rating, attributes: ["rate"] },
+            { model: db.Category, attributes: ["id", "name"] },
+          ],
         },
       ],
+      order: [["id", "DESC"]],
     });
-    return res.status(200).json(updatedStock);
-  } catch (err) {
-    console.error(err);
-    return next(err);
+
+    const categories = await db.Category.findAll({ where: { ShopId: req.body.ShopId } });
+
+    const result = { products, categories };
+
+    return res.status(200).json(result);
+  } catch (e) {
+    console.log(e);
+    next(e);
   }
 });
 
-router.post("/update", async (req, res, next) => {
+router.post("/edit", async (req, res, next) => {
   try {
-    const { id, quantity } = req.body;
-    await db.Stock.update({ quantity }, { where: { id } });
-    const updatedStock = await db.Stock.findOne({
-      where: { id },
-      include: [
-        {
-          model: db.Product,
-          include: [{ model: db.Image }],
-        },
-      ],
-    });
-    return res.status(200).json(updatedStock);
+    const { id, stock, discount } = req.body;
+    await db.Stock.update({ stock, discount }, { where: { id } });
   } catch (err) {
-    console.error(err);
+    console.error(err.response.data);
     return next(err);
   }
 });

@@ -27,6 +27,8 @@ const NavibarLayout = () => {
 
   const { pageInfo } = useSelector((state) => state.admin);
 
+  console.log(pageInfo);
+
   const [show, setShow] = useState(false);
 
   const hideHandler = () => {
@@ -145,24 +147,14 @@ const NavibarLayout = () => {
           <Menu.Item key={"back"}>
             <ArrowLeftOutlined onClick={() => Router.back()} />
           </Menu.Item>
-
           <Menu.Item key={"search"} style={{ float: "right" }}>
-            {pageInfo && pageInfo == ("index" || "menu") ? (
-              <Input.Search
-                enterButton
-                style={{ verticalAlign: "middle" }}
-                onClick={onToggleSearch}
-                readOnly
-              />
-            ) : (
-              <Input.Search
-                enterButton
-                style={{ verticalAlign: "middle", visibility: "hidden" }}
-                disabled={true}
-                onClick={onToggleSearch}
-                readOnly
-              />
-            )}
+            <Input.Search
+              enterButton
+              style={{ verticalAlign: "middle" }}
+              onClick={onToggleSearch}
+              disabled={pageInfo === ("store" || "menu" || "index") ? false : true}
+              readOnly
+            />
           </Menu.Item>
 
           {!isLoggedIn

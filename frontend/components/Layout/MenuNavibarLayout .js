@@ -6,7 +6,7 @@ import { CATEGORY_FILTERED_SUCCESS, ADMIN_PRODUCTS_REQUEST } from "../../reducer
 const MenuNavibarLayout = ({ categories, type, setCategory, ShopId, products, originProducts }) => {
   const dispatch = useDispatch();
 
-  const isSale = originProducts ? originProducts.findIndex((v) => v.Discount) : -1;
+  const isSale = originProducts[0] ? originProducts.findIndex((v) => v.Discount) : -1;
 
   return (
     <Menu mode="horizontal">

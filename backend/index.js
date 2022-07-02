@@ -12,6 +12,7 @@ const mongoose = require("mongoose");
 const sequelize = require("sequelize");
 const Op = sequelize.Op;
 const schedule = require("node-schedule");
+const SocketIo = require("./socket");
 
 const passportConfig = require("./passport");
 const db = require("./models");
@@ -23,6 +24,7 @@ const user = require("./routes/user");
 const menu = require("./routes/menu");
 const payments = require("./routes/payments");
 const shop = require("./routes/shop");
+const stock = require("./routes/stock");
 
 dotenv.config();
 const app = express();
@@ -79,6 +81,7 @@ app.use("/user", user);
 app.use("/menu", menu);
 app.use("/payments", payments);
 app.use("/shop", shop);
+app.use("/stock", stock);
 
 const options = {
   key: fs.readFileSync(__dirname + "/key.pem", "utf-8"),
@@ -143,22 +146,6 @@ app.post("/", async (req, res, next) => {
   }
 });
 
-// schedule.scheduleJob("**00 00**", async () => {
-//   try {
-//     await db.Stock.delete({ where: { [Op.lt]: { dueDate: Date.now() } } });
-//   } catch (err) {
-//     console.error(err);
-//   }
-// });
-
-schedule.scheduleJob("* 00 ***", async () => {
-  try {
-    await db.User.delete({ where: { certificate: false } });
-  } catch (err) {
-    return console.error(err);
-  }
-});
-
 const OneSignal = require("onesignal-node");
 const client = new OneSignal.Client(process.env.ONESIGNAL_KEY, process.env.ONESIGNAL_SECRET);
 
@@ -181,9 +168,10 @@ app.get("/onesignal", async (req, res, next) => {
   }
 });
 
-// Create an HTTP server.
-http.createServer(app).listen(3030);
-// Create an HTTPS server.
-https.createServer(options, app).listen(3065, () => {
+const httpServer = http.createServer(app).listen(3030);
+
+const httpsServer = https.createServer(options, app).listen(3065, () => {
   console.log(`The server is running on 3065 port`);
 });
+
+SocketIo(httpsServer, app);

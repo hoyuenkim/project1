@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { SEARCH_PRODUCT_SUCCESS } from "../../reducers/menu";
 import { useState } from "react";
 import axios from "axios";
+import { SEARCH_STOCK_PRODUCT_SUCCESS } from "../../reducers/stock";
 
 const SearchBar = ({ setToggleSearch, setVisible, type, setList }) => {
   const dispatch = useDispatch();
@@ -27,6 +28,11 @@ const SearchBar = ({ setToggleSearch, setVisible, type, setList }) => {
           setList(location);
           setVisible(true);
         });
+    } else if (type == "store") {
+      dispatch({
+        type: SEARCH_STOCK_PRODUCT_SUCCESS,
+        data: { text },
+      });
     }
     setText();
     setToggleSearch(false);
