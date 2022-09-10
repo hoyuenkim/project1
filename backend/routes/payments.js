@@ -1,18 +1,38 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const db = require('../models');
-const axios = require('axios');
-const sequelize = require('sequelize');
+const db = require("../models");
+const axios = require("axios");
+const sequelize = require("sequelize");
 const Op = sequelize.Op;
 
-router.post('/complete', async (req, res, next) => {
+router.post("/complete", async (req, res, next) => {
   try {
     const cart = JSON.parse(req.body.data.custom_data);
 
-    const Iamport = await db.Iamport.create(req.body.data);
-    const { imp_uid, merchant_uid, id } = Iamport;
+    // console.log("complete");
+    // console.log(cart[0]);
+    console.log(req.body.data);
 
-    cart.map(async (product) => {
+    // const Iamport = await db.Iamport.create(req.body.data);
+
+    // console.log(Iamport.id);
+
+    const { imp_uid, merchant_uid } = req.body.data;
+
+    await cart.map(async (product) => {
+      console.log(
+        `ProductId: ${product.ProductId}`,
+        `ShopId: ${product.ShopId}`,
+        `UserId: ${product.UserId}`,
+        `UserName: ${product.UserName}`,
+        `quantity: ${product.quantity}`,
+        `price: ${product.price}`,
+        imp_uid,
+        merchant_uid,
+        `IamportId: ${1}`,
+        `ProductTitle: ${product.ProductTitle}`,
+        `ShopName: ${product.ShopName}`,
+      );
       await db.Payments.create({
         ProductId: product.ProductId,
         ShopId: product.ShopId,
@@ -22,35 +42,23 @@ router.post('/complete', async (req, res, next) => {
         price: product.price,
         imp_uid,
         merchant_uid,
-        IamportId: id,
+        IamportId: 1,
         ProductTitle: product.ProductTitle,
         ShopName: product.ShopName,
       });
     });
-
-    const paymentsComplete = await db.Payments.findAll({
-      where: { IamportId: id },
-      include: [
-        {
-          model: db.Product,
-          include: [{ model: db.Image, attributes: ['url'] }],
-        },
-        { model: db.User, attributes: ['id', 'name'] },
-        { model: db.Shop, attributes: ['id', 'name'] },
-      ],
-    });
-    return res.status(200).json({ result: 'success' });
+    return res.status(200).json({ result: "success" });
   } catch (err) {
-    console.error(err);
+    console.error(err.response);
     next();
   }
 });
 
-router.post('/cancel', async (req, res, next) => {
+router.post("/cancel", async (req, res, next) => {
   try {
     let getCancelData;
     if (req.body.division == true) {
-      const result = await axios.post('https://api.iamport.kr/users/getToken', {
+      const result = await axios.post("https://api.iamport.kr/users/getToken", {
         imp_key: process.env.IMP_KEY,
         imp_secret: process.env.IMP_SECRET,
       });
@@ -64,18 +72,18 @@ router.post('/cancel', async (req, res, next) => {
       console.log(access_token);
 
       getCancelData = await axios.post(
-        'https://api.iamport.kr/payments/cancel',
+        "https://api.iamport.kr/payments/cancel",
         {
-          reason: '환불요청', // 가맹점 클라이언트로부터 받은 환불사유
+          reason: "환불요청", // 가맹점 클라이언트로부터 받은 환불사유
           imp_uid: req.body.imp_uid, // imp_uid를 환불 `unique key`로 입력
           amount: req.body.amount, // 가맹점 클라이언트로부터 받은 환불금액
         },
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `${access_token}`, // 아임포트 서버로부터 발급받은 엑세스 토큰
           },
-        }
+        },
       );
     }
     const query = req.body.division == 0 ? { status: 1 } : { status: 2 };
@@ -91,7 +99,7 @@ router.post('/cancel', async (req, res, next) => {
   }
 });
 
-router.post('/load', async (req, res, next) => {
+router.post("/load", async (req, res, next) => {
   try {
     if (req.body.division == false) {
       const history = await db.Payments.findAll({
@@ -99,10 +107,10 @@ router.post('/load', async (req, res, next) => {
         include: [
           {
             model: db.Product,
-            include: [{ model: db.Image, attributes: ['url'] }],
+            include: [{ model: db.Image, attributes: ["url"] }],
           },
-          { model: db.Shop, attributes: ['name'] },
-          { model: db.Iamport, attributes: ['imp_uid'] },
+          { model: db.Shop, attributes: ["name"] },
+          { model: db.Iamport, attributes: ["imp_uid"] },
           { model: db.Rating },
         ],
       });
@@ -114,11 +122,11 @@ router.post('/load', async (req, res, next) => {
         include: [
           {
             model: db.Product,
-            include: [{ model: db.Image, attributes: ['url'] }],
+            include: [{ model: db.Image, attributes: ["url"] }],
           },
-          { model: db.Shop, attributes: ['name'] },
-          { model: db.User, attributes: ['name'] },
-          { model: db.Iamport, attributes: ['imp_uid'] },
+          { model: db.Shop, attributes: ["name"] },
+          { model: db.User, attributes: ["name"] },
+          { model: db.Iamport, attributes: ["imp_uid"] },
           { model: db.Rating },
         ],
       });
@@ -130,7 +138,7 @@ router.post('/load', async (req, res, next) => {
   }
 });
 
-router.post('/rating', async (req, res, next) => {
+router.post("/rating", async (req, res, next) => {
   try {
     const log = await db.Rating.findOne({
       where: { PaymentId: req.body.PaymentsId },
@@ -138,7 +146,7 @@ router.post('/rating', async (req, res, next) => {
     if (log) {
       await db.Rating.update(
         { rate: req.body.rate },
-        { where: { PaymentId: req.body.PaymentsId } }
+        { where: { PaymentId: req.body.PaymentsId } },
       );
       const result = await db.Rating.findOne({
         where: { PaymentId: req.body.PaymentsId },
@@ -159,11 +167,11 @@ router.post('/rating', async (req, res, next) => {
   }
 });
 
-router.post('/search/user', async (req, res, next) => {
+router.post("/search/user", async (req, res, next) => {
   try {
     const UserId = req.body.data.UserId;
     const textQuery = req.body.data.text
-      ? req.body.data.select === 'product'
+      ? req.body.data.select === "product"
         ? { ProductTitle: { [Op.like]: `%${req.body.data.text}%` } }
         : { ShopName: { [Op.like]: `%${req.body.data.text}%` } }
       : null;
@@ -184,11 +192,11 @@ router.post('/search/user', async (req, res, next) => {
       include: [
         {
           model: db.Product,
-          include: [{ model: db.Image, attributes: ['url'] }],
+          include: [{ model: db.Image, attributes: ["url"] }],
         },
-        { model: db.User, attributes: ['name'] },
-        { model: db.Iamport, attributes: ['imp_uid'] },
-        { model: db.Shop, attributes: ['name'] },
+        { model: db.User, attributes: ["name"] },
+        { model: db.Iamport, attributes: ["imp_uid"] },
+        { model: db.Shop, attributes: ["name"] },
       ],
     });
     return res.status(200).json(result);
@@ -198,13 +206,13 @@ router.post('/search/user', async (req, res, next) => {
   }
 });
 
-router.post('/search/shop', async (req, res, next) => {
+router.post("/search/shop", async (req, res, next) => {
   try {
     const ShopId = await db.Shop.findOne({
       where: { UserId: req.body.data.UserId },
     });
     const textQuery = req.body.data.text
-      ? req.body.data.select === 'product'
+      ? req.body.data.select === "product"
         ? { ProductTitle: { [Op.like]: `%${req.body.data.text}%` } }
         : { UserName: { [Op.like]: `%${req.body.data.text}%` } }
       : null;
@@ -225,11 +233,11 @@ router.post('/search/shop', async (req, res, next) => {
       include: [
         {
           model: db.Product,
-          include: [{ model: db.Image, attributes: ['url'] }],
+          include: [{ model: db.Image, attributes: ["url"] }],
         },
-        { model: db.User, attributes: ['name'] },
-        { model: db.Iamport, attributes: ['imp_uid'] },
-        { model: db.Shop, attributes: ['name'] },
+        { model: db.User, attributes: ["name"] },
+        { model: db.Iamport, attributes: ["imp_uid"] },
+        { model: db.Shop, attributes: ["name"] },
       ],
     });
     return res.status(200).json(result);

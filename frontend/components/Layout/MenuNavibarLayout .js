@@ -3,7 +3,15 @@ import { useDispatch } from "react-redux";
 import { SELECT_CATEGORY_SUCCESS } from "../../reducers/menu";
 import { CATEGORY_FILTERED_SUCCESS, ADMIN_PRODUCTS_REQUEST } from "../../reducers/shop";
 
-const MenuNavibarLayout = ({ categories, type, setCategory, ShopId, products, originProducts }) => {
+const MenuNavibarLayout = ({
+  categories,
+  type,
+  setCategory,
+  ShopId,
+  products,
+  originProducts,
+  originalStocks,
+}) => {
   const dispatch = useDispatch();
 
   const isSale = originProducts[0] ? originProducts.findIndex((v) => v.Discount) : -1;
@@ -13,7 +21,7 @@ const MenuNavibarLayout = ({ categories, type, setCategory, ShopId, products, or
       <Menu.Item
         key={"entire"}
         onClick={() => {
-          type === "menu"
+          type === "menu" || "stock"
             ? dispatch({
                 type: SELECT_CATEGORY_SUCCESS,
                 id: 0,

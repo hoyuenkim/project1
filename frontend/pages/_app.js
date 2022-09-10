@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import React from "react";
 import Head from "next/head";
 import "antd/dist/antd.css";
+// import "antd-mobile/cjs/global";
 import wrapper from "../store/configureStore";
 import withReduxSaga from "next-redux-saga";
 
@@ -46,6 +47,8 @@ const App = ({ Component }) => {
           type="text/javascript"
           src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT}&libraries=services,clusterer`}
         ></script>
+        <link rel="shortcut icon" href={`/favicon.ico`} type="image/x-icon" />
+        <link rel="icon" href={`/favicon.ico`} type="image/x-icon" />
       </Head>
       <PersistGate persistor={store.__persistor}>
         <CentralAppLayout>

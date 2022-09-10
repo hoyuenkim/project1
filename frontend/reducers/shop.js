@@ -297,36 +297,7 @@ const reducer = (state = initialState, action) => {
 
     case SET_SHOPCOORDINATES_SUCCESS: {
       console.log(action.data);
-      return { ...state, shopCoordinates: action.data.list, productsNear: action.data.products };
-    }
-
-    case NEAR_ADD_QUANTITY_REQUEST: {
-      console.log(state.productsNear);
-      const index = state.productsNear.findIndex((near) => near.id == action.data.id);
-      console.log(index);
-      const product = state.productsNear[index];
-      let quantity = product.quantity;
-      quantity < 100 ? (quantity += 1) : 99;
-      const productsNear = [...state.productsNear];
-      productsNear[index] = { ...product, quantity };
-
-      return {
-        ...state,
-        productsNear,
-      };
-    }
-
-    case NEAR_SUBSTRACT_QUANTITY_REQUEST: {
-      const index = state.productsNear.findIndex((near) => near.id === action.data.id);
-      const product = state.productsNear[index];
-      let quantity = product.quantity;
-      quantity > 1 ? (quantity -= 1) : 1;
-      const productsNear = [...state.productsNear];
-      productsNear[index] = { ...product, quantity };
-      return {
-        ...state,
-        productsNear,
-      };
+      return { ...state, shopCoordinates: action.data.shopCoordinates };
     }
 
     default: {

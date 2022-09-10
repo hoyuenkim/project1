@@ -1,4 +1,4 @@
-import { List, Avatar, Card, Button, Row, Col, Divider, Empty } from "antd";
+import { List, Avatar, Card, Button, Row, Col, Divider, Empty, Space } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { RestOutlined } from "@ant-design/icons";
 import CartAmountToggle from "../../components/Generalui/CartAmoutToggle";
@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import { onClickPayment } from "../../components/Generalui/Payment";
 import ModalInterface from "../../components/Generalui/Modal";
 import { PAGE_CHANGE_SUCCESS } from "../../reducers/admin";
+import { io } from "socket.io-client";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -21,13 +22,38 @@ const Cart = () => {
   const [windowWidth, windowHeight] = useWindowSize();
   const router = useRouter();
 
+  useEffect(() => {
+    const socket = io(process.env.BACKEND_IP, {
+      cors: { origin: true },
+    });
+
+    socket.on("connection", (data) => {
+      return console.log(data);
+    });
+
+    socket.emit("client:id", { id: 0 });
+
+    socket.on("server:id", (data) => {
+      return console.log(data);
+    });
+
+    socket.on("server:sold:cart", (data) => {
+      return dispatch({ type: SOLD_CART_SUCCESS, data });
+    });
+
+    socket.on("server:update", (data) => {
+      return dispatch({ type: UPDATE_STOCK_SUCCESS, data });
+    });
+  });
+
   const onChangeToggleModal = () => setToggleModal((prev) => !prev);
 
   const product = cart[0];
+  console.log(product);
 
   const paymentStart = async () => {
-    onClickPayment(
-      "cart",
+    onClickPayment({
+      type: "cart",
       product,
       isLoggedIn,
       session,
@@ -37,7 +63,7 @@ const Cart = () => {
       router,
       ShopId,
       TableId,
-    );
+    });
   };
 
   useEffect(() => {
@@ -66,7 +92,7 @@ const Cart = () => {
           renderItem={(item) => (
             <List.Item>
               <Card
-                title={<h1>{item.title}</h1>}
+                title={<h1>{item.product.title}</h1>}
                 style={{ width: "100%" }}
                 extra={
                   <h2>
@@ -85,7 +111,7 @@ const Cart = () => {
                         <Avatar
                           size={100}
                           shape="square"
-                          src={`${process.env.BACKEND_IP}/uploads/${item.Images[0].url}`}
+                          src={`${process.env.BACKEND_IP}/uploads/${item.product.Images[0].url}`}
                         />
                       }
                       description={
@@ -97,6 +123,8 @@ const Cart = () => {
                               value={
                                 item.Discount
                                   ? item.price * (100 - item.Discount.rate) * 0.01
+                                  : item.discount
+                                  ? item.product.price * (1 - item.discount)
                                   : item.price
                               }
                               displayType={"text"}
@@ -104,7 +132,18 @@ const Cart = () => {
                             />
                           </Col>
                           <Col span={8}>
-                            <CartAmountToggle id={item.id} quantity={item.quantity} />
+                            <Space direction={"vertical"}>
+                              <Row gutter={[0, 10]}>
+                                <Col span={14}>남은수량:</Col>
+                                <Col span={10}>{item.stock}개</Col>
+                              </Row>
+                              <CartAmountToggle
+                                id={item.id}
+                                quantity={item.quantity}
+                                price={item.product.price}
+                                discount={item.discount}
+                              />
+                            </Space>
                           </Col>
                         </Row>
                       }
@@ -118,8 +157,10 @@ const Cart = () => {
                     <NumberFormat
                       value={
                         item.Discount
-                          ? item.price * (100 - item.Discount.rate) * 0.01 * item.quantity
-                          : item.price * item.quantity
+                          ? item.product.price * (100 - item.Discount.rate) * 0.01 * item.quantity
+                          : item.discount
+                          ? item.product.price * (1 - item.discount) * item.quantity
+                          : item.product.price * item.quantity
                       }
                       displayType={"text"}
                       thousandSeparator={true}

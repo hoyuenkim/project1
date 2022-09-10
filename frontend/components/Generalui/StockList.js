@@ -53,6 +53,8 @@ export default () => {
                         discount={stock.discount}
                         id={stock.id}
                         stock={stock.stock}
+                        shop={stock.Shop}
+                        dueDate={stock.dueDate}
                       />
                     </Col>
                   );

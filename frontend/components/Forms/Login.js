@@ -1,10 +1,9 @@
-import React, { useEffect, useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Form, Input, Button, message, Card, Space } from 'antd';
-import { MailOutlined, LockOutlined } from '@ant-design/icons';
-import { LOG_IN_REQUEST } from '../../reducers/user';
-import Link from 'next/link';
-import Router from 'next/router';
+import React, { useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Form, Input, Button, message, Card, Space } from "antd";
+import { MailOutlined, LockOutlined } from "@ant-design/icons";
+import { LOG_IN_REQUEST } from "../../reducers/user";
+import Router from "next/router";
 
 const Login = ({
   setToggleLogin,
@@ -34,10 +33,10 @@ const Login = ({
 
   const onClickSignUp = () => {
     setToggleLogin(false);
-    Router.push('/user/signup');
+    Router.push("/user/signup");
   };
 
-  const onFinish = useCallback(() => {
+  const onFinish = () => {
     dispatch({
       type: LOG_IN_REQUEST,
       data: {
@@ -45,53 +44,48 @@ const Login = ({
         password,
       },
     });
-  }, [username, password]);
+  };
 
   return (
     <>
-      <Card style={{ verticalAlign: 'middle' }}>
-        <Form onFinish={onFinish}>
-          <Space direction="vertical" size={'large'} style={{ width: '100%' }}>
+      <Card style={{ verticalAlign: "middle" }}>
+        <Form onFinish={onFinish} initialValues={{ username: undefined, password: undefined }}>
+          <Space direction="vertical" size={"large"} style={{ width: "100%" }}>
             <Form.Item
-              name={'email'}
+              name={"email"}
               rules={[
-                { required: true, message: '이메일을 입력해주세요' },
-                { type: 'email', message: '형식에 맞지 않는 아이디입니다' },
+                { required: true, message: "이메일을 입력해주세요" },
+                { type: "email", message: "형식에 맞지 않는 아이디입니다" },
               ]}
             >
               <Input
                 prefix={<MailOutlined />}
-                size={'large'}
-                name={'email'}
+                size={"large"}
+                name={"email"}
                 onChange={onChangeUsername}
               />
             </Form.Item>
             <Form.Item
-              name={'password'}
+              name={"password"}
               rules={[
-                { required: true, message: '비밀번호를 입력해주세요' },
+                { required: true, message: "비밀번호를 입력해주세요" },
                 {
                   pattern: /^[0-9a-zA-Z]{6,12}$/,
-                  message: '형식에 맞지 않는 비밀번호입니다',
+                  message: "형식에 맞지 않는 비밀번호입니다",
                 },
               ]}
             >
               <Input.Password
-                name={'password'}
+                name={"password"}
                 prefix={<LockOutlined />}
-                size={'large'}
+                size={"large"}
                 onChange={onChangePassword}
               />
             </Form.Item>
-            <Button
-              type={'primary'}
-              htmlType={'submit'}
-              style={{ width: '100%' }}
-            >
+            <Button type={"primary"} htmlType={"submit"} style={{ width: "100%" }}>
               Login
             </Button>
-
-            <Button style={{ width: '100%' }} onClick={onClickSignUp}>
+            <Button style={{ width: "100%" }} onClick={onClickSignUp}>
               회원가입
             </Button>
           </Space>

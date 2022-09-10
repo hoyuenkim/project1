@@ -6,21 +6,14 @@ import { useSelector } from "react-redux";
 
 const MapComponent = ({ session }) => {
   const router = useRouter();
-  const { userCoordinates, shopCoordinates } = useSelector((state) => state.shop);
-
-  const [centerCoordinates, setCenterCoordinates] = useState({
-    lat: session.lat,
-    lng: session.lng,
-  });
-
-  useEffect(() => {
-    if (userCoordinates) {
-      return setCenterCoordinates({ lat: userCoordinates[1], lng: userCoordinates[0] });
-    }
-  }, [userCoordinates]);
+  const { shopCoordinates } = useSelector((state) => state.shop);
 
   return (
-    <Map center={centerCoordinates} style={{ width: "100%", height: "360px" }} level={5}>
+    <Map
+      center={{ lat: session.lat, lng: session.lng }}
+      style={{ width: "100%", height: "360px" }}
+      level={5}
+    >
       {session && session.division === false && (
         <CustomOverlayMap key={session.id} position={{ lat: session.lat, lng: session.lng }}>
           <Tag key={session.id}>{session && session.name}</Tag>
@@ -36,7 +29,7 @@ const MapComponent = ({ session }) => {
                 lat: result.location.coordinates[1],
                 lng: result.location.coordinates[0],
               }}
-              key={result.id}
+              key={index}
             >
               <Tag
                 key={index}

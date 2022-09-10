@@ -58,18 +58,6 @@ app.use(
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  expressSession({
-    resave: false,
-    saveUninitialized: false,
-    // secret: process.env.COOKIE_SECRET,
-    cookie: {
-      httpOnly: false,
-      secure: true, // https를 쓸 때 true
-      maxAge: 1000 * 3 * 60 * 60,
-    },
-  }),
-);
 app.use(passport.initialize());
 passportConfig();
 // app.use(passport.session());

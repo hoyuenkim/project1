@@ -1,5 +1,5 @@
-import { Menu, Input, Modal, Popover, Space, List, Empty } from "antd";
-import { ArrowLeftOutlined, UserOutlined } from "@ant-design/icons";
+import { Menu, Input, Modal, Popover, Space, List, Empty, Tag } from "antd";
+import { ArrowLeftOutlined, UserOutlined, SearchOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import Router from "next/router";
 import { LOG_OUT_SUCCESS } from "../../reducers/user";
@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import { useInput } from "../Generalui/CustomHooks";
 import axios from "axios";
 import { SET_COORDINATES_SUCCESS, SET_SHOPCOORDINATES_SUCCESS } from "../../reducers/shop";
+import { isMobile } from "react-device-detect";
 
 const NavibarLayout = () => {
   const router = useRouter();
@@ -26,8 +27,6 @@ const NavibarLayout = () => {
   const [list, setList] = useState([]);
 
   const { pageInfo } = useSelector((state) => state.admin);
-
-  console.log(pageInfo);
 
   const [show, setShow] = useState(false);
 
@@ -46,14 +45,18 @@ const NavibarLayout = () => {
 
   const dispatch = useDispatch();
   const onClickLogout = () => {
-    setPassword("");
-    setUsername("");
+    setPassword(undefined);
+    setUsername(undefined);
+    console.log(username);
+    console.log(password);
     dispatch({ type: LOG_OUT_SUCCESS });
   };
 
   const onToggleLogin = () => {
-    setPassword("");
-    setUsername("");
+    setPassword(undefined);
+    setUsername(undefined);
+    console.log(username);
+    console.log(password);
     setToggleLogin((prev) => !prev);
   };
 
@@ -93,14 +96,18 @@ const NavibarLayout = () => {
 
   const { isLoggedIn, session } = useSelector((state) => state.user);
 
+  console.log(`isMobile: ${isMobile}`);
+
   return (
     <>
       <Modal title={"Login"} visible={toggleLogin} onCancel={onToggleLogin} footer={null}>
         <LoginModal
           setToggleLogin={setToggleLogin}
           username={username}
+          setUsername={setUsername}
           onChangeUsername={onChangeUsername}
           password={password}
+          setPassword={setPassword}
           onChangePassword={onChangePassword}
         />
       </Modal>
@@ -142,62 +149,70 @@ const NavibarLayout = () => {
       >
         <ChangePassword setToggleChangePassword={setToggleChangePassword} />
       </Modal>
-      <div style={{ marginTop: "10px", backGroundColor: "white" }}>
-        <Menu mode="horizontal">
-          <Menu.Item key={"back"}>
-            <ArrowLeftOutlined onClick={() => Router.back()} />
-          </Menu.Item>
-          <Menu.Item key={"search"} style={{ float: "right" }}>
+      <Menu mode="horizontal">
+        <Menu.Item key={"back"}>
+          <ArrowLeftOutlined onClick={() => Router.back()} />
+        </Menu.Item>
+
+        <Menu.Item
+          key={"search"}
+          style={isMobile ? (isLoggedIn ? { marginLeft: "20%" } : { marginLeft: "55%" }) : null}
+        >
+          {isMobile ? (
+            <Tag color={"blue"} visible={isLoggedIn} onClick={onToggleSearch}>
+              {"  "} Search <SearchOutlined /> {"  "}
+            </Tag>
+          ) : (
             <Input.Search
               enterButton
               style={{ verticalAlign: "middle" }}
               onClick={onToggleSearch}
-              disabled={pageInfo === ("store" || "menu" || "index") ? false : true}
+              visible={pageInfo === ("store" || "menu" || "index") ? true : false}
               readOnly
             />
-          </Menu.Item>
+          )}
+        </Menu.Item>
 
-          {!isLoggedIn
-            ? [
-                <Menu.Item key={"login"}>
-                  <a onClick={onToggleLogin}>로그인</a>
-                </Menu.Item>,
-              ]
-            : [
-                <Menu.Item key={"profile"}>
-                  <Popover
-                    trigger={"click"}
-                    placement={"bottom"}
-                    title={session.name}
-                    visible={show}
-                    onVisibleChange={showHandler}
-                    content={
-                      <>
-                        <Space direction={"vertical"}>
-                          <div style={{ cursor: "pointer" }} onClick={onToggleChangePassword}>
-                            비밀번호 변경
+        {!isLoggedIn
+          ? [
+              <Menu.Item key={"login"}>
+                <a onClick={onToggleLogin}>로그인</a>
+              </Menu.Item>,
+            ]
+          : [
+              <Menu.Item key={"profile"}>
+                <Popover
+                  trigger={"click"}
+                  placement={"bottom"}
+                  title={session.name}
+                  visible={show}
+                  onVisibleChange={showHandler}
+                  content={
+                    <>
+                      <Space direction={"vertical"}>
+                        <div style={{ cursor: "pointer" }} onClick={onToggleChangePassword}>
+                          비밀번호 변경
+                        </div>
+                        <div style={{ cursor: "pointer" }} onClick={onClickPayments}>
+                          결제이력
+                        </div>
+                        {session.division === true && (
+                          <div style={{ cursor: "pointer" }} onClick={onClickAdmin}>
+                            매장관리 페이지
                           </div>
-                          <div style={{ cursor: "pointer" }} onClick={onClickPayments}>
-                            결제이력
-                          </div>
-                          {session.division === true && (
-                            <div style={{ cursor: "pointer" }} onClick={onClickAdmin}>
-                              매장관리 페이지
-                            </div>
-                          )}
-                        </Space>
-                      </>
-                    }
-                  >
-                    <UserOutlined />
-                  </Popover>
-                </Menu.Item>,
-                <Menu.Item style={{ float: "right" }} key={"logout"}>
-                  <a onClick={onClickLogout}>로그아웃</a>
-                </Menu.Item>,
-              ]}
-        </Menu>
-      </div>
+                        )}
+                      </Space>
+                    </>
+                  }
+                >
+                  <UserOutlined />
+                </Popover>
+              </Menu.Item>,
+              <Menu.Item key={"logout"}>
+                <a onClick={onClickLogout}>로그아웃</a>
+              </Menu.Item>,
+            ]}
+      </Menu>
     </>
   );
 };

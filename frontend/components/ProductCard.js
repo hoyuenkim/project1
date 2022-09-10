@@ -72,7 +72,7 @@ const ProductCard = ({ product }) => {
         cover={
           <img
             style={{ border: `1px solid #EFF2F5` }}
-            src={product.Images[0] && `${process.env.BACKEND_IP}/uploads/${product.Images[0].url}`}
+            src={product.Images[0] && `${process.env.CDN_DOMAIN}/${product.Images[0].url}`}
           />
         }
         hoverable

@@ -125,9 +125,9 @@ router.post("/delete", async (req, res, next) => {
   try {
     await db.Product.destroy({ where: { id: req.body.id } });
     return res.status(200).json({ id: req.body.id });
-  } catch (e) {
-    console.log(e);
-    next(e);
+  } catch (err) {
+    console.log(err.response);
+    next(err);
   }
 });
 
@@ -152,27 +152,9 @@ router.post("/load", async (req, res, next) => {
     const result = [products, categories];
 
     return res.status(200).json(result);
-  } catch (e) {
-    console.log(e);
-    next(e);
-  }
-});
-
-router.post("/sold", async (req, res, next) => {
-  try {
-    const { id, quantity, inStock } = req.body;
-    const isStock = await db.Stock.findOne({ where: { id } });
-    if (isStock == null) {
-      return res.status(404).json({ message: "no stock id" });
-    } else if (isStock.quantity > 0) {
-      const result = await db.Stock.update({ quantity: inStock - quantity }, { where: { id } });
-      return res.status(200).json(result);
-    } else {
-      return res.status(404).json({ message: "out of stock" });
-    }
   } catch (err) {
-    console.error(err);
-    return next(err);
+    console.log(err);
+    next(err);
   }
 });
 

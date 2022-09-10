@@ -22,14 +22,6 @@ export const SUBSTRACT_QUANTITY_REQUEST = "SUBSTRACT_QUANTITY_REQUEST";
 export const SUBSTRACT_QUANTITY_SUCCESS = "SUBSTRACT_QUANTITY_SUCCESS";
 export const SUBSTRACT_QUANTITY_FAILURE = "SUBSTRACT_QUANTITY_FAILURE";
 
-export const PLUS_QUANTITY_REQUEST = "PLUS_QUANTITY_REQUEST";
-export const PLUS_QUANTITY_SUCCESS = "PLUS_QUANTITY_SUCCESS";
-export const PLUS_QUANTITY_FAILURE = "PLUS_QUANTITY_FAILURE";
-
-export const MINUS_QUANTITY_REQUEST = "MINUS_QUANTITY_REQUEST";
-export const MINUS_QUANTITY_SUCCESS = "MINUS_QUANTITY_SUCCESS";
-export const MINUS_QUANTITY_FAILURE = "MINUS_QUANTITY_FAILURE";
-
 export const ADD_PRODUCT_REQUEST = "ADD_PRODUCT_REQUEST";
 export const ADD_PRODUCT_SUCCESS = "ADD_PRODUCT_SUCCESS";
 export const ADD_PRODUCT_FAILURE = "ADD_PRODUCT_FAILURE";
@@ -83,33 +75,6 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         products,
-      };
-    }
-
-    case PLUS_QUANTITY_SUCCESS: {
-      const index = state.lists.findIndex((product) => product.id === action.data.id);
-      const product = state.lists[index];
-      let quantity = product.quantity;
-      quantity < product.stock ? (quantity += 1) : product.quantity;
-      const lists = [...state.lists];
-      lists[index] = { ...product, quantity };
-
-      return {
-        ...state,
-        lists,
-      };
-    }
-
-    case MINUS_QUANTITY_SUCCESS: {
-      const index = state.lists.findIndex((product) => product.id === action.data.id);
-      const product = state.lists[index];
-      let quantity = product.quantity;
-      quantity > 1 ? (quantity -= 1) : 1;
-      const lists = [...state.lists];
-      lists[index] = { ...product, quantity };
-      return {
-        ...state,
-        lists,
       };
     }
 
